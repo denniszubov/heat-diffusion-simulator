@@ -15,14 +15,14 @@ from utils.plotting import plot_colored_line
 
 # Streamlit UI setup
 st.set_page_config(page_title="1D Heat Diffusion", layout="wide")
-st.title("1D Heat Equation Simulator (Skeleton)")
+st.title("1D Heat Equation Simulator")
 
 # Sidebar inputs
 L = st.sidebar.number_input("Rod length L", value=1.0, min_value=0.1, step=0.1, format="%.2f")
 Nx = st.sidebar.slider("Spatial points Nx", min_value=50, max_value=800, value=200, step=10)
 alpha = st.sidebar.number_input("Thermal diffusivity α", value=1.0, min_value=0.0001, step=0.1, format="%.4f")
 total_time = st.sidebar.number_input("Total simulated time", value=0.2, min_value=0.01, step=0.05, format="%.3f")
-dt = st.sidebar.number_input("Time step Δt", value=1e-5, min_value=1e-6, step=1e-5, format="%.6f")
+dt = st.sidebar.number_input("Time step Δt", value=6e-6, min_value=1e-8, step=1e-6, format="%.2e")
 
 method_choice = st.sidebar.selectbox("Numerical method", [m.value for m in Method], index=0)
 boundary_type_choice = st.sidebar.selectbox("Boundary condition type", [b.value for b in BoundaryType], index=0)
@@ -78,22 +78,31 @@ fig = plot_colored_line(
     cbar_fraction=0.046,
     cbar_pad_rel=0.04,
 )
-placeholder.pyplot(fig, clear_figure=True, use_container_width=False)
+placeholder.pyplot(fig, clear_figure=True, width='content')
+plt.close(fig)
 
 if run and stepper is not None:
     runner = Runner(stepper=stepper, u0=u0)
     total_steps = int(np.floor(time_spec.T / time_spec.dt))
+    
+    # Limit the number of frames for better performance
+    max_frames = 200
+    frame_skip = max(1, total_steps // max_frames)
+    
     for snap in runner.run():
         progress.progress(min(1.0, snap.step / max(1, total_steps)))
-        fig = plot_colored_line(
-            x, snap.u, y_min, y_max, snap.step,
-            figsize=(10, 4),
-            pad=1.0,
-            cbar_fraction=0.046,
-            cbar_pad_rel=0.04,
-        )
-        placeholder.pyplot(fig, clear_figure=True, use_container_width=False)
-        plt.close(fig)
-        time.sleep(0.0001)
+        
+        # Update visualization every frame_skip steps or at the end
+        if snap.step % frame_skip == 0 or snap.step == total_steps:
+            fig = plot_colored_line(
+                x, snap.u, y_min, y_max, snap.step,
+                figsize=(10, 4),
+                pad=1.0,
+                cbar_fraction=0.046,
+                cbar_pad_rel=0.04,
+            )
+            placeholder.pyplot(fig, clear_figure=True, width='content')
+            plt.close(fig)
+            time.sleep(0.01)  # Increased sleep time for better rendering
 
-    st.success("Done. Implement your stepper to see dynamics.")
+    st.success("Simulation completed successfully!")
