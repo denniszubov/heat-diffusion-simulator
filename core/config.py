@@ -6,7 +6,7 @@ class Method(Enum):
     FTCS_EXPLICIT = "FTCS (Explicit)"
 
 
-class BoundaryKind(Enum):
+class BoundaryType(Enum):
     DIRICHLET = "Dirichlet"
 
 
@@ -30,4 +30,4 @@ class PhysicalSpec:
 @dataclass(frozen=True)
 class SolverSpec:
     method: Method
-    boundary_kind: BoundaryKind
+    boundary_type: BoundaryType
