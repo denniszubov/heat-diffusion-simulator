@@ -1,12 +1,14 @@
 import time
+
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 
-from core.boundary_condition import BoundaryHandler, DirichletBC
 from core.config import BoundaryType, GridSpec, Method, PhysicalSpec, SolverSpec, TimeSpec
+from core.factory import build_boundary
+from core.factory import build_stepper
 from core.initial_condition import INITIAL_CONDITIONS_FACTORY
-from core.solver import build_stepper, Runner
+from core.solver import Runner
 from core.types import Array1D
 from utils.plotting import plot_colored_line
 
@@ -38,13 +40,6 @@ phys = PhysicalSpec(alpha=float(alpha))
 x = np.linspace(0.0, grid.L, grid.Nx, dtype=np.float64)
 u0_fn = INITIAL_CONDITIONS_FACTORY[ic_choice]()
 u0: Array1D = u0_fn(x)
-
-
-def build_boundary(boundary_type: BoundaryType) -> BoundaryHandler:
-    if boundary_type is BoundaryType.DIRICHLET:
-        return DirichletBC()
-    raise ValueError("Unknown boundary type.")
-
 
 # Set up simulation
 bc = build_boundary(BoundaryType(boundary_type_choice))

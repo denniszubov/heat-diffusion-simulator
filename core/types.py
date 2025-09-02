@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from collections.abc import Protocol
+from typing import Protocol
 from dataclasses import dataclass
 
 import numpy as np

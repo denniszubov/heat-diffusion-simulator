@@ -7,10 +7,8 @@ import numpy as np
 
 from .boundary_condition import BoundaryHandler
 from .config import GridSpec
-from .config import Method
 from .config import PhysicalSpec
 from .config import TimeSpec
-from .methods.explicit_ftcs import FTCS
 from .types import Array1D
 from .types import Snapshot
 
@@ -30,12 +28,6 @@ class Stepper(ABC):
 
     def stability_note(self) -> str | None:
         return None
-
-
-def build_stepper(method: Method, grid: GridSpec, time: TimeSpec, phys: PhysicalSpec, bc: BoundaryHandler) -> Stepper:
-    if method is Method.FTCS_EXPLICIT:
-        return FTCS(grid, time, phys, bc)
-    raise ValueError(f"Unsupported method: {method}")
 
 
 @dataclass
