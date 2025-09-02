@@ -18,10 +18,10 @@ st.set_page_config(page_title="1D Heat Diffusion", layout="wide")
 st.title("1D Heat Equation Simulator")
 
 # Sidebar inputs
-L = st.sidebar.number_input("Rod length L", value=1.0, min_value=0.1, step=0.1, format="%.2f")
+L = st.sidebar.number_input("Rod length L (m)", value=0.05, min_value=0.01, max_value=0.5, step=0.01, format="%.3f")
 Nx = st.sidebar.slider("Spatial points Nx", min_value=50, max_value=800, value=200, step=10)
-alpha = st.sidebar.number_input("Thermal diffusivity α", value=1.0, min_value=0.0001, step=0.1, format="%.4f")
-total_time = st.sidebar.number_input("Total simulated time", value=0.2, min_value=0.01, step=0.05, format="%.3f")
+alpha = st.sidebar.number_input("Thermal diffusivity α (m²/s)", value=1e-4, min_value=1e-6, max_value=1e-3, step=1e-5, format="%.2e")
+total_time = st.sidebar.number_input("Total simulated time (s)", value=2.5, min_value=0.1, max_value=30.0, step=0.1, format="%.1f")
 dt = st.sidebar.number_input("Time step Δt", value=6e-6, min_value=1e-8, step=1e-6, format="%.2e")
 
 method_choice = st.sidebar.selectbox("Numerical method", [m.value for m in Method], index=0)
@@ -30,6 +30,14 @@ ic_choice = st.sidebar.selectbox("Initial condition", list(INITIAL_CONDITIONS_FA
 
 left_bc_val = st.sidebar.number_input("Left BC value", value=0.0, step=0.1, format="%.2f")
 right_bc_val = st.sidebar.number_input("Right BC value", value=0.0, step=0.1, format="%.2f")
+
+# Animation settings
+update_frequency = st.sidebar.selectbox(
+    "Animation update frequency", 
+    options=[1, 10, 100, 1000, 10000],
+    index=3,  # Default to every 1000 steps
+    format_func=lambda x: f"Every {x} steps"
+)
 
 # Build simulation specs
 grid = GridSpec(L=float(L), Nx=int(Nx))
@@ -77,6 +85,7 @@ fig = plot_colored_line(
     pad=1.0,
     cbar_fraction=0.046,
     cbar_pad_rel=0.04,
+    simulation_time=0.0,
 )
 placeholder.pyplot(fig, clear_figure=True, width='content')
 plt.close(fig)
@@ -85,24 +94,26 @@ if run and stepper is not None:
     runner = Runner(stepper=stepper, u0=u0)
     total_steps = int(np.floor(time_spec.T / time_spec.dt))
     
-    # Limit the number of frames for better performance
-    max_frames = 200
-    frame_skip = max(1, total_steps // max_frames)
+    estimated_frames = total_steps // update_frequency + 1
+    st.info(f"Simulating {time_spec.T:.1f}s of heat diffusion with {total_steps:,} time steps")
+    st.info(f"Will show ~{estimated_frames} frames (every {update_frequency} steps)")
     
+    frame_count = 0
     for snap in runner.run():
         progress.progress(min(1.0, snap.step / max(1, total_steps)))
         
-        # Update visualization every frame_skip steps or at the end
-        if snap.step % frame_skip == 0 or snap.step == total_steps:
+        # Update visualization based on user choice
+        if snap.step % update_frequency == 0 or snap.step == total_steps:
             fig = plot_colored_line(
                 x, snap.u, y_min, y_max, snap.step,
                 figsize=(10, 4),
                 pad=1.0,
                 cbar_fraction=0.046,
                 cbar_pad_rel=0.04,
+                simulation_time=snap.t,
             )
             placeholder.pyplot(fig, clear_figure=True, width='content')
             plt.close(fig)
-            time.sleep(0.01)  # Increased sleep time for better rendering
-
-    st.success("Simulation completed successfully!")
+            frame_count += 1
+    
+    st.success(f"Simulation completed! Showed {frame_count} frames.")
