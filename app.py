@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 
-from core.config import BoundaryType, GridSpec, Method, PhysicalSpec, SolverSpec, TimeSpec
+from core.config import BoundaryConfig, BoundaryType, GridSpec, Method, PhysicalSpec, SolverSpec, TimeSpec
 from core.factory import build_boundary
 from core.factory import build_stepper
 from core.initial_condition import INITIAL_CONDITIONS_FACTORY
@@ -42,7 +42,12 @@ u0_fn = INITIAL_CONDITIONS_FACTORY[ic_choice]()
 u0: Array1D = u0_fn(x)
 
 # Set up simulation
-bc = build_boundary(BoundaryType(boundary_type_choice))
+boundary_config = BoundaryConfig(
+    boundary_type=BoundaryType(boundary_type_choice),
+    left_value=left_bc_val,
+    right_value=right_bc_val
+)
+bc = build_boundary(boundary_config)
 spec = SolverSpec(method=Method(method_choice), boundary_type=BoundaryType(boundary_type_choice))
 
 # Calculate plot limits

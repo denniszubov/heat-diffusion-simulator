@@ -7,10 +7,15 @@ from .types import Array1D
 class BoundaryHandler(ABC):
     @abstractmethod
     def apply(self, u: Array1D, t: float, dx: float) -> None:
-        raise NotImplementedError()
+        """Apply boundary conditions to the array u."""
+        pass
 
 
 @dataclass
 class DirichletBC(BoundaryHandler):
+    left: float
+    right: float
+    
     def apply(self, u: Array1D, t: float, dx: float) -> None:
-        raise NotImplementedError("To be implemented")
+        u[0] = self.left
+        u[-1] = self.right
