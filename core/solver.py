@@ -41,12 +41,13 @@ class Runner:
         u = self.u0.astype(np.float64).copy()
         t = 0.0
 
+        # Apply boundary conditions to initial state
         self.stepper.bc.apply(u, t, self.stepper.dx)
         yield Snapshot(step=0, t=t, u=u.copy())
 
         for k in range(1, n_steps + 1):
-            self.stepper.bc.apply(u, t, self.stepper.dx)
+            # Step from current time t to next time t + dt
+            # (stepper handles boundary conditions internally)
             u = self.stepper.step(u, t)
-            t = float(k * dt)
-            self.stepper.bc.apply(u, t, self.stepper.dx)
+            t = t + dt
             yield Snapshot(step=k, t=t, u=u.copy())
