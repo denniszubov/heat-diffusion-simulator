@@ -11,7 +11,7 @@ from core.initial_condition import INITIAL_CONDITIONS_FACTORY
 from core.solver import Runner
 from core.types import Array1D
 from utils.plotting import plot_colored_line
-from utils.stability import stability_control_ui
+from utils.stability import calculate_stable_timestep
 from utils.initial_condition_ui import initial_condition_ui
 
 
@@ -38,11 +38,9 @@ st.sidebar.markdown("### Simulation Parameters")
 
 # Thermal diffusivity with realistic material options (in m²/s)
 diffusivity_options = {
-    "Aluminum": 8.4e-5,
+    "Aluminium": 8.4e-5,
     "Copper": 1.1e-4,
     "Steel": 1.2e-5,
-    "Glass": 3.4e-7,
-    "Custom": None
 }
 
 material_choice = st.sidebar.selectbox(
@@ -51,30 +49,14 @@ material_choice = st.sidebar.selectbox(
     index=0
 )
 
-if material_choice == "Custom":
-    alpha = st.sidebar.number_input(
-        "Custom α (m²/s)", 
-        value=8.4e-5, 
-        min_value=1e-8, 
-        max_value=1e-3, 
-        step=1e-6, 
-        format="%.2e"
-    )
-else:
-    alpha = diffusivity_options[material_choice]
-    st.sidebar.markdown(f"α = {alpha:.2e} m²/s")
-
-method_choice = st.sidebar.selectbox(
-    "Numerical method", 
-    [m.value for m in Method], 
-    index=0
-)
+alpha = diffusivity_options[material_choice]
+st.sidebar.markdown(f"α = {alpha:.2e} m²/s")
 
 ic_choice, ic_params = initial_condition_ui()
 
 # Calculate grid spacing and handle stability
 dx = L / (Nx - 1)
-dt, r = stability_control_ui(alpha, dx)
+dt = calculate_stable_timestep(alpha, dx)
 
 # Build simulation specs
 grid = GridSpec(L=L, Nx=Nx)
@@ -86,7 +68,7 @@ x = np.linspace(0.0, grid.L, grid.Nx, dtype=np.float64)
 u0_fn = INITIAL_CONDITIONS_FACTORY[ic_choice](**ic_params)
 u0: Array1D = u0_fn(x)
 
-# Set boundary conditions to match initial condition endpoints
+# Set boundary conditions to match initial condition endpoints -- only Dirichlet for now
 left_bc_val = float(u0[0])
 right_bc_val = float(u0[-1])
 
@@ -97,6 +79,8 @@ boundary_config = BoundaryConfig(
     right_value=right_bc_val
 )
 bc = build_boundary(boundary_config)
+
+method_choice = Method.FTCS_EXPLICIT.value
 spec = SolverSpec(method=Method(method_choice), boundary_type=BoundaryType.DIRICHLET)
 
 # Calculate plot limits

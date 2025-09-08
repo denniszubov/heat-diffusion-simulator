@@ -17,18 +17,26 @@ def initial_condition_ui() -> tuple[str, Dict[str, Any]]:
         index=0
     )
 
-    # Initial condition parameters based on selection
-    st.sidebar.markdown("#### Initial Condition Parameters")
     ic_params = {}
-
     if ic_choice == "Sine Wave":
+        st.sidebar.markdown("#### Initial Condition Parameters")
         ic_params['frequency'] = st.sidebar.slider(
             "Frequency", 0.5, 6.0, 2.0, 0.5,
             help="Number of complete waves across the domain"
         )
         ic_params['amplitude'] = st.sidebar.slider(
             "Amplitude (°C)", 10.0, 100.0, 50.0, 5.0,
-            help="Peak temperature above baseline"
+            help="Sine wave amplitude"
+        )
+    elif ic_choice == "Square Wave":
+        st.sidebar.markdown("#### Initial Condition Parameters")
+        ic_params['steps'] = st.sidebar.slider(
+            "Steps", 1, 10, 5, 1,
+            help="Number of square wave steps across the domain"
+        )
+        ic_params['amplitude'] = st.sidebar.slider(
+            "Amplitude (°C)", 10.0, 100.0, 50.0, 5.0,
+            help="Wave amplitude"
         )
 
     return ic_choice, ic_params
