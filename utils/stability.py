@@ -15,18 +15,3 @@ def calculate_stable_timestep(alpha: float, dx: float, safety_factor: float = 0.
         Maximum stable time step (s)
     """
     return safety_factor * dx**2 / alpha
-
-
-def calculate_stability_parameter(alpha: float, dt: float, dx: float) -> float:
-    """
-    Calculate the stability parameter r = α·dt/dx².
-    
-    Args:
-        alpha: Thermal diffusivity (m²/s)
-        dt: Time step (s)
-        dx: Spatial grid spacing (m)
-    
-    Returns:
-        Stability parameter r
-    """
-    return alpha * dt / dx**2
