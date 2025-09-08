@@ -103,9 +103,7 @@ spec = SolverSpec(method=Method(method_choice), boundary_type=BoundaryType.DIRIC
 y_min = float(min(u0.min(), left_bc_val, right_bc_val)) - 0.1
 y_max = float(max(u0.max(), left_bc_val, right_bc_val)) + 0.1
 
-left_col, mid_col, right_col = st.columns([1, 3, 1])
-with mid_col:
-    placeholder = st.empty()
+placeholder = st.empty()
 progress = st.progress(0)
 run = st.button("Run simulation")
 
@@ -115,12 +113,14 @@ except NotImplementedError as e:
     st.error(f"{e}")
     stepper = None
 
+figure_width, figure_height = 18, 8
+
 if stepper is None:
     st.sidebar.error("Selected method not implemented yet")
 
 fig = plot_colored_line(
     x, u0, y_min, y_max, 0,
-    figsize=(10, 4),
+    figsize=(figure_width, figure_height),
     pad=1.0,
     cbar_fraction=0.046,
     cbar_pad_rel=0.04,
@@ -148,7 +148,7 @@ if run and stepper is not None:
         if snap.step % update_frequency == 0 or snap.step == total_steps:
             fig = plot_colored_line(
                 x, snap.u, y_min, y_max, snap.step,
-                figsize=(10, 4),
+                figsize=(figure_width, figure_height),
                 pad=1.0,
                 cbar_fraction=0.046,
                 cbar_pad_rel=0.04,
