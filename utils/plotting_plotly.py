@@ -17,8 +17,19 @@ def create_heat_plot(
         go.Scatter(
             x=x,
             y=y,
-            mode="lines",
-            line=dict(color="red", width=3),
+            # mode="lines",
+            mode="markers",
+            marker=dict(
+                color=y,                 # color by temperature
+                colorscale=[[0, "blue"], [1, "red"]],  # blue->red
+                cmin=y.min(),            # lock the range
+                cmax=y.max(),
+                showscale=True,
+                colorbar=dict(title="Temp (°C)"),
+                size=6,
+                opacity=0.9
+            ),
+            # line=dict(color="red", width=3),
             name="Temperature",
             showlegend=False,
         )
@@ -58,8 +69,9 @@ def update_heat_plot_data(
 ) -> None:
     """Update only the data and title of existing Plotly figure."""
 
-    # Update temperature data
+    # Update temperature data and color gradient
     fig.data[0].y = y
+    fig.data[0].marker.color = y
 
     title = (
         f"Heat Diffusion - Time: {simulation_time:.1f}s (Step {step})"
