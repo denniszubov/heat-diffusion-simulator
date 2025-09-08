@@ -19,8 +19,6 @@ from utils.initial_condition_ui import initial_condition_ui
 L = 0.1  # in m
 Nx = 201  # Spatial points
 total_time = 60.0  # in seconds
-left_bc_val = 0.0  # in °C
-right_bc_val = 0.0  # in °C
 update_frequency = 100  # Animation update frequency
 
 # Streamlit UI setup
@@ -32,7 +30,6 @@ st.sidebar.markdown("### Physical Setup")
 st.sidebar.markdown(f"**Rod length:** {L:.2f} m")
 st.sidebar.markdown(f"**Simulation time:** {total_time:.0f} seconds")
 st.sidebar.markdown(f"**Spatial resolution:** {Nx} points")
-st.sidebar.markdown(f"**Boundary conditions:** {left_bc_val}°C (both ends)")
 
 st.sidebar.markdown("---")
 
@@ -88,6 +85,10 @@ phys = PhysicalSpec(alpha=alpha)
 x = np.linspace(0.0, grid.L, grid.Nx, dtype=np.float64)
 u0_fn = INITIAL_CONDITIONS_FACTORY[ic_choice](**ic_params)
 u0: Array1D = u0_fn(x)
+
+# Set boundary conditions to match initial condition endpoints
+left_bc_val = float(u0[0])
+right_bc_val = float(u0[-1])
 
 # Set up simulation
 boundary_config = BoundaryConfig(
