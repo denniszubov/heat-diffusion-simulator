@@ -1,6 +1,3 @@
-import time
-
-import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 
@@ -10,7 +7,7 @@ from core.factory import build_stepper
 from core.initial_condition import INITIAL_CONDITIONS_FACTORY
 from core.solver import Runner
 from core.types import Array1D
-from utils.plotting import plot_colored_line
+from utils.plotting_plotly import create_heat_plot, update_heat_plot_data
 from utils.stability import calculate_stable_timestep
 from utils.initial_condition_ui import initial_condition_ui
 
@@ -18,8 +15,8 @@ from utils.initial_condition_ui import initial_condition_ui
 # Physical constants
 L = 0.1  # in m
 Nx = 600  # Spatial points
-total_time = 5.0  # in seconds
-update_frequency = 100  # Animation update frequency
+total_time = 3.0  # in seconds
+update_frequency = 20  # Animation update frequency for better performance
 
 # Streamlit UI setup
 st.set_page_config(page_title="1D Heat Diffusion", layout="wide")
@@ -97,21 +94,11 @@ except NotImplementedError as e:
     st.error(f"{e}")
     stepper = None
 
-figure_width, figure_height = 18, 8
-
 if stepper is None:
     st.sidebar.error("Selected method not implemented yet")
 
-fig = plot_colored_line(
-    x, u0, y_min, y_max, 0,
-    figsize=(figure_width, figure_height),
-    pad=1.0,
-    cbar_fraction=0.046,
-    cbar_pad_rel=0.04,
-    simulation_time=0.0,
-)
-placeholder.pyplot(fig, clear_figure=True, width='content')
-plt.close(fig)
+fig = create_heat_plot(x, u0, y_min, y_max, 0, simulation_time=0.0)
+placeholder.plotly_chart(fig, use_container_width=True)
 
 if run and stepper is not None:
     runner = Runner(stepper=stepper, u0=u0)
@@ -128,18 +115,10 @@ if run and stepper is not None:
     for snap in runner.run():
         progress.progress(min(1.0, snap.step / max(1, total_steps)))
         
-        # Update visualization based on user choice
+        # Update visualization at reduced frequency
         if snap.step % update_frequency == 0 or snap.step == total_steps:
-            fig = plot_colored_line(
-                x, snap.u, y_min, y_max, snap.step,
-                figsize=(figure_width, figure_height),
-                pad=1.0,
-                cbar_fraction=0.046,
-                cbar_pad_rel=0.04,
-                simulation_time=snap.t,
-            )
-            placeholder.pyplot(fig, clear_figure=True, width='content')
-            plt.close(fig)
+            update_heat_plot_data(fig, snap.u, snap.step, snap.t)
+            placeholder.plotly_chart(fig, use_container_width=True, key=f"heat_plot_{snap.step}")
             frame_count += 1
     
     st.success(f"Simulation completed! Showed {frame_count} frames.")
