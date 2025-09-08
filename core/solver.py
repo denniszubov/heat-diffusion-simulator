@@ -26,9 +26,6 @@ class Stepper(ABC):
     def step(self, u: Array1D, t: float) -> Array1D:
         raise NotImplementedError
 
-    def stability_note(self) -> str | None:
-        return None
-
 
 @dataclass
 class Runner:

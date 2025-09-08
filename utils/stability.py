@@ -54,23 +54,6 @@ def stability_control_ui(alpha: float, dx: float) -> Tuple[float, float]:
     # Show stability information
     st.sidebar.markdown(f"**Time step:** {dt_ms:.3f} ms")
     st.sidebar.markdown(f"**Grid spacing:** {dx*1000:.2f} mm")
-    st.sidebar.info(f"✅ Stable: r = {r:.1f}")
+    st.sidebar.info(f"Stable: r = {r:.1f}")
 
     return dt, r
-
-
-def display_stability_education():
-    with st.sidebar.expander("📚 About Numerical Stability"):
-        st.markdown("""
-        **Stability Condition**: For explicit methods like FTCS, the stability parameter 
-        **r = α·dt/dx²** must be ≤ 0.5 for the 1D heat equation.
-        
-        - **r ≤ 0.5**: Stable simulation ✅
-        - **r > 0.5**: Unstable - solution will blow up ⚠️
-        
-        **Auto-calculation**: This app automatically calculates the optimal stable 
-        time step for your chosen material and grid resolution.
-        
-        **Materials matter**: Higher diffusivity (like copper) requires smaller time steps 
-        than lower diffusivity materials (like glass) for the same grid.
-        """)

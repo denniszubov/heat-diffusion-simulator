@@ -42,7 +42,3 @@ class FTCS(Stepper):
         self.bc.apply(u_next, new_t, self.dx)
         
         return u_next
-
-    def stability_note(self) -> str | None:
-        r = self.phys.alpha * self.time.dt / (self.dx * self.dx)
-        return f"FTCS recommended stability: r = α*dt/dx² = {r:.4f} (≤ 0.5 for classical 1D)."

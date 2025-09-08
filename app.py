@@ -11,7 +11,6 @@ from core.initial_condition import INITIAL_CONDITIONS_FACTORY
 from core.solver import Runner
 from core.types import Array1D
 from utils.plotting import plot_colored_line
-from utils.stability import display_stability_education
 from utils.stability import stability_control_ui
 
 
@@ -118,13 +117,7 @@ except NotImplementedError as e:
     st.error(f"{e}")
     stepper = None
 
-if stepper is not None:
-    note = stepper.stability_note()
-    if note:
-        st.sidebar.info(note)
-
-    display_stability_education()
-else:
+if stepper is None:
     st.sidebar.error("Selected method not implemented yet")
 
 fig = plot_colored_line(
