@@ -27,16 +27,16 @@ def plot_colored_line(
     ax.add_collection(lc)
     ax.set_xlim(float(x.min()), float(x.max()))
     ax.set_ylim(y_min, y_max)
-    ax.set_xlabel("Position (x)")
-    ax.set_ylabel("Temperature")
+    ax.set_xlabel("Position (m)")
+    ax.set_ylabel("Temperature (°C)")
     
     # Show simulation time if provided, otherwise just step
     if simulation_time is not None:
-        ax.set_title(f"Heat Diffusion - Time: {simulation_time:.4f}s (Step {step})")
+        ax.set_title(f"Heat Diffusion - Time: {simulation_time:.1f}s (Step {step})")
     else:
         ax.set_title(f"Temperature profile at step {step}")
         
     cbar = fig.colorbar(lc, ax=ax, fraction=cbar_fraction, pad=cbar_pad_rel)
-    cbar.set_label("Temperature")
+    cbar.set_label("Temperature (°C)")
     fig.tight_layout(pad=pad)
     return fig
