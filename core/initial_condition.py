@@ -20,6 +20,45 @@ def initial_condition_gaussian(center_fraction: float = 0.5, width_fraction: flo
     return _f
 
 
+def initial_condition_step() -> InitialCondition:
+    """
+    Step function: hot on the left half, cold on the right half.
+    Classic discontinuous initial condition.
+    """
+    def _f(x: Array1D) -> Array1D:
+        domain_length = float(x[-1] - x[0])
+        midpoint = x[0] + 0.5 * domain_length
+        return np.where(x < midpoint, 100.0, 0.0).astype(np.float64)
+    return _f
+
+
+def initial_condition_sine_wave(frequency: float = 2.0, amplitude: float = 50.0) -> InitialCondition:
+    """
+    Sinusoidal initial condition.
+    frequency: Number of complete waves across the domain
+    amplitude: Peak temperature above baseline
+    """
+    def _f(x: Array1D) -> Array1D:
+        domain_length = float(x[-1] - x[0])
+        x_normalized = (x - x[0]) / domain_length
+        baseline = amplitude
+        return (baseline + amplitude * np.sin(frequency * 2 * np.pi * x_normalized)).astype(np.float64)
+    return _f
+
+
+def initial_condition_linear_ramp() -> InitialCondition:
+    """
+    Linear temperature gradient from hot to cold.
+    """
+    def _f(x: Array1D) -> Array1D:
+        x_normalized = (x - x[0]) / (x[-1] - x[0])
+        return (100.0 * (1.0 - x_normalized)).astype(np.float64)
+    return _f
+
+
 INITIAL_CONDITIONS_FACTORY: dict[str, Callable[..., InitialCondition]] = {
     "Gaussian Bump": initial_condition_gaussian,
+    "Step Function": initial_condition_step,
+    "Sine Wave": initial_condition_sine_wave,
+    "Linear Ramp": initial_condition_linear_ramp,
 }

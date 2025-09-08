@@ -12,6 +12,7 @@ from core.solver import Runner
 from core.types import Array1D
 from utils.plotting import plot_colored_line
 from utils.stability import stability_control_ui
+from utils.initial_condition_ui import initial_condition_ui
 
 
 # Physical constants
@@ -72,11 +73,7 @@ method_choice = st.sidebar.selectbox(
     index=0
 )
 
-ic_choice = st.sidebar.selectbox(
-    "Initial condition", 
-    list(INITIAL_CONDITIONS_FACTORY.keys()), 
-    index=0
-)
+ic_choice, ic_params = initial_condition_ui()
 
 # Calculate grid spacing and handle stability
 dx = L / (Nx - 1)
@@ -89,7 +86,7 @@ phys = PhysicalSpec(alpha=alpha)
 
 # Initial condition
 x = np.linspace(0.0, grid.L, grid.Nx, dtype=np.float64)
-u0_fn = INITIAL_CONDITIONS_FACTORY[ic_choice]()
+u0_fn = INITIAL_CONDITIONS_FACTORY[ic_choice](**ic_params)
 u0: Array1D = u0_fn(x)
 
 # Set up simulation
