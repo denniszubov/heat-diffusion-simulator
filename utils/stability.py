@@ -1,7 +1,3 @@
-import streamlit as st
-from typing import Tuple
-
-
 def calculate_stable_timestep(alpha: float, dx: float, safety_factor: float = 0.5) -> float:
     """
     Calculate the maximum stable time step for explicit finite difference methods.

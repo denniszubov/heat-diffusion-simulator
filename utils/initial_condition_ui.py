@@ -1,10 +1,10 @@
 import streamlit as st
-from typing import Dict, Any
+from typing import Any
 
 from core.initial_condition import INITIAL_CONDITIONS_FACTORY
 
 
-def initial_condition_ui() -> tuple[str, Dict[str, Any]]:
+def initial_condition_ui() -> tuple[str, dict[str, Any]]:
     """
     Renders the initial condition selection UI and parameter controls.
     
