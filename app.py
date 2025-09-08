@@ -17,7 +17,7 @@ from utils.initial_condition_ui import initial_condition_ui
 
 # Physical constants
 L = 0.1  # in m
-Nx = 201  # Spatial points
+Nx = 600  # Spatial points
 total_time = 60.0  # in seconds
 update_frequency = 100  # Animation update frequency
 
