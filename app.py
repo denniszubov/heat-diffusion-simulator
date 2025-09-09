@@ -20,7 +20,6 @@ from utils.boundary_setup import (
 # Physical constants
 L = 0.1  # in m
 Nx = 600  # Spatial points
-total_time = 3.0  # in seconds
 update_frequency = 20  # Animation update frequency for better performance
 
 # Thermal diffusivity with realistic material options (in m²/s)
@@ -36,7 +35,6 @@ st.title("1D Heat Equation Simulator")
 
 st.sidebar.markdown("### Physical Setup")
 st.sidebar.markdown(f"**Rod length:** {L:.2f} m")
-st.sidebar.markdown(f"**Simulation time:** {total_time:.0f} seconds")
 st.sidebar.markdown(f"**Spatial resolution:** {Nx} points")
 
 st.sidebar.markdown("---")
@@ -52,6 +50,10 @@ boundary_type_choice = st.sidebar.selectbox(
     "Boundary Conditions", get_boundary_type_options(), index=0, help=get_boundary_type_help()
 )
 
+total_simulation_time = st.sidebar.slider(
+    "Total Simulation Time (s)", min_value=1.0, max_value=20.0, value=8.0, step=1.0
+)
+
 
 def setup_simulation():
     alpha = diffusivity_options[material_choice]
@@ -65,7 +67,7 @@ def setup_simulation():
 
     # Build simulation specs
     grid = GridSpec(L=L, Nx=Nx)
-    time_spec = TimeSpec(T=total_time, dt=dt)
+    time_spec = TimeSpec(T=total_simulation_time, dt=dt)
     phys = PhysicalSpec(alpha=alpha)
 
     # Initial condition
@@ -99,7 +101,7 @@ placeholder = st.empty()
 run = st.button("Run simulation")
 
 fig = create_heat_plot(
-    x, u0, y_min, y_max, 0, simulation_time=0.0, total_simulation_time=total_time
+    x, u0, y_min, y_max, 0, simulation_time=0.0, total_simulation_time=total_simulation_time
 )
 placeholder.plotly_chart(fig, use_container_width=True)
 
@@ -115,7 +117,7 @@ if run:
             frame_count += 1
             continue
 
-        update_heat_plot_data(fig, snap.u, snap.step, snap.t, total_simulation_time=total_time)
+        update_heat_plot_data(fig, snap.u, snap.step, snap.t, total_simulation_time=total_simulation_time)
         placeholder.plotly_chart(fig, use_container_width=True, key=f"heat_plot_{snap.step}")
         frame_count += 1
 
