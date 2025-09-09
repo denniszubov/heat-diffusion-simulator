@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from core.boundary_condition import BoundaryHandler
 from core.config import BoundaryConfig, BoundaryType
 from core.factory import build_boundary

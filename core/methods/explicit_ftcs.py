@@ -1,5 +1,3 @@
-import numpy as np
-
 from ..solver import Stepper
 from ..types import Array1D
 
