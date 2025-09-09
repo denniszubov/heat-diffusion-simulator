@@ -1,16 +1,12 @@
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass
 
 import numpy as np
 
 from .boundary_condition import BoundaryHandler
-from .config import GridSpec
-from .config import PhysicalSpec
-from .config import TimeSpec
-from .types import Array1D
-from .types import Snapshot
+from .config import GridSpec, PhysicalSpec, TimeSpec
+from .types import Array1D, Snapshot
 
 
 class Stepper(ABC):

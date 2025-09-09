@@ -1,5 +1,6 @@
-import numpy as np
 import time
+
+import numpy as np
 import streamlit as st
 
 from core.config import GridSpec, Method, PhysicalSpec, SolverSpec, TimeSpec
@@ -7,15 +8,10 @@ from core.factory import build_stepper
 from core.initial_condition import INITIAL_CONDITIONS_FACTORY
 from core.solver import Runner
 from core.types import Array1D
+from utils.boundary_setup import get_boundary_type_help, get_boundary_type_options, setup_boundary_conditions
+from utils.initial_condition_ui import initial_condition_ui
 from utils.plotting_plotly import create_heat_plot, update_heat_plot_data
 from utils.stability import calculate_stable_timestep
-from utils.initial_condition_ui import initial_condition_ui
-from utils.boundary_setup import (
-    setup_boundary_conditions,
-    get_boundary_type_options,
-    get_boundary_type_help,
-)
-
 
 # Physical constants
 L = 0.1  # in m
@@ -42,9 +38,7 @@ st.sidebar.markdown("---")
 # User-controllable parameters
 st.sidebar.markdown("### Simulation Parameters")
 
-material_choice = st.sidebar.selectbox(
-    "Material (thermal diffusivity α)", list(diffusivity_options.keys()), index=0
-)
+material_choice = st.sidebar.selectbox("Material (thermal diffusivity α)", list(diffusivity_options.keys()), index=0)
 
 boundary_type_choice = st.sidebar.selectbox(
     "Boundary Conditions", get_boundary_type_options(), index=0, help=get_boundary_type_help()
@@ -100,9 +94,7 @@ x, u0, y_min, y_max, stepper, time_spec = setup_simulation()
 placeholder = st.empty()
 run = st.button("Run simulation")
 
-fig = create_heat_plot(
-    x, u0, y_min, y_max, 0, simulation_time=0.0, total_simulation_time=total_simulation_time
-)
+fig = create_heat_plot(x, u0, y_min, y_max, 0, simulation_time=0.0, total_simulation_time=total_simulation_time)
 placeholder.plotly_chart(fig, use_container_width=True)
 
 if run:

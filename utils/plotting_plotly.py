@@ -1,5 +1,5 @@
-import plotly.graph_objects as go
 import numpy as np
+import plotly.graph_objects as go
 from numpy.typing import NDArray
 
 
@@ -23,9 +23,9 @@ def create_heat_plot(
                 color=y,  # color by temperature
                 colorscale=[[0, "blue"], [1, "red"]],  # blue->red
                 cmin=y.min(),
-                cmax=y.max(), 
+                cmax=y.max(),
                 size=6,
-                opacity=0.9
+                opacity=0.9,
             ),
             name="Temperature",
             showlegend=False,
