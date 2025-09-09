@@ -8,7 +8,6 @@ def create_heat_plot(
     y: NDArray[np.float64],
     y_min: float,
     y_max: float,
-    step: int,
     simulation_time: float,
     total_simulation_time: float,
 ) -> go.Figure:
@@ -32,7 +31,7 @@ def create_heat_plot(
         )
     )
 
-    title = f"Heat Diffusion - Time: {simulation_time:.1f}s / {total_simulation_time}s | Step {step}"
+    title = f"Heat Diffusion - Time: {simulation_time:.1f}s / {total_simulation_time}s"
 
     fig.update_layout(
         title={"text": title, "font": {"size": 24}, "x": 0.5},
@@ -57,12 +56,11 @@ def create_heat_plot(
 def update_heat_plot_data(
     fig: go.Figure,
     y: NDArray[np.float64],
-    step: int,
     simulation_time: float,
     total_simulation_time: float,
 ) -> None:
     fig.data[0].y = y
     fig.data[0].marker.color = y
 
-    title = f"Heat Diffusion - Time: {simulation_time:.1f}s / {total_simulation_time}s | Step {step}"
+    title = f"Heat Diffusion - Time: {simulation_time:.1f}s / {total_simulation_time}s"
     fig.update_layout(title=dict(text=title))

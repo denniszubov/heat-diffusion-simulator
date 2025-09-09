@@ -8,7 +8,11 @@ from core.factory import build_stepper
 from core.initial_condition import INITIAL_CONDITIONS_FACTORY
 from core.solver import Runner
 from core.types import Array1D
-from utils.boundary_setup import get_boundary_type_help, get_boundary_type_options, setup_boundary_conditions
+from utils.boundary_setup import (
+    get_boundary_type_help,
+    get_boundary_type_options,
+    setup_boundary_conditions,
+)
 from utils.initial_condition_ui import initial_condition_ui
 from utils.plotting_plotly import create_heat_plot, update_heat_plot_data
 from utils.stability import calculate_stable_timestep
@@ -94,7 +98,7 @@ x, u0, y_min, y_max, stepper, time_spec = setup_simulation()
 placeholder = st.empty()
 run = st.button("Run simulation")
 
-fig = create_heat_plot(x, u0, y_min, y_max, 0, simulation_time=0.0, total_simulation_time=total_simulation_time)
+fig = create_heat_plot(x, u0, y_min, y_max, simulation_time=0.0, total_simulation_time=total_simulation_time)
 placeholder.plotly_chart(fig, use_container_width=True)
 
 if run:
@@ -109,7 +113,7 @@ if run:
             frame_count += 1
             continue
 
-        update_heat_plot_data(fig, snap.u, snap.step, snap.t, total_simulation_time=total_simulation_time)
+        update_heat_plot_data(fig, snap.u, snap.t, total_simulation_time=total_simulation_time)
         placeholder.plotly_chart(fig, use_container_width=True, key=f"heat_plot_{snap.step}")
         frame_count += 1
 
