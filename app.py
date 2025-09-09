@@ -2,8 +2,7 @@ import numpy as np
 import time
 import streamlit as st
 
-from core.config import BoundaryConfig, BoundaryType, GridSpec, Method, PhysicalSpec, SolverSpec, TimeSpec
-from core.factory import build_boundary
+from core.config import GridSpec, Method, PhysicalSpec, SolverSpec, TimeSpec
 from core.factory import build_stepper
 from core.initial_condition import INITIAL_CONDITIONS_FACTORY
 from core.solver import Runner
@@ -11,6 +10,11 @@ from core.types import Array1D
 from utils.plotting_plotly import create_heat_plot, update_heat_plot_data
 from utils.stability import calculate_stable_timestep
 from utils.initial_condition_ui import initial_condition_ui
+from utils.boundary_setup import (
+    setup_boundary_conditions,
+    get_boundary_type_options,
+    get_boundary_type_help,
+)
 
 
 # Physical constants
@@ -41,9 +45,11 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("### Simulation Parameters")
 
 material_choice = st.sidebar.selectbox(
-    "Material (thermal diffusivity α)", 
-    list(diffusivity_options.keys()),
-    index=0
+    "Material (thermal diffusivity α)", list(diffusivity_options.keys()), index=0
+)
+
+boundary_type_choice = st.sidebar.selectbox(
+    "Boundary Conditions", get_boundary_type_options(), index=0, help=get_boundary_type_help()
 )
 
 
@@ -67,27 +73,14 @@ def setup_simulation():
     u0_fn = INITIAL_CONDITIONS_FACTORY[ic_choice](**ic_params)
     u0: Array1D = u0_fn(x)
 
-    # Set boundary conditions to match initial condition endpoints -- only Dirichlet for now
-    left_bc_val = float(u0[0])
-    right_bc_val = float(u0[-1])
-
-    # Set up simulation
-    boundary_config = BoundaryConfig(
-        boundary_type=BoundaryType.DIRICHLET,
-        left_value=left_bc_val,
-        right_value=right_bc_val
-    )
-    bc = build_boundary(boundary_config)
+    # Set up boundary conditions
+    bc, bc_type, (y_min, y_max) = setup_boundary_conditions(boundary_type_choice, u0)
 
     method_choice = Method.FTCS_EXPLICIT.value
-    spec = SolverSpec(method=Method(method_choice), boundary_type=BoundaryType.DIRICHLET)
-
-    # Calculate plot limits
-    y_min = float(min(u0.min(), left_bc_val, right_bc_val)) - 0.1
-    y_max = float(max(u0.max(), left_bc_val, right_bc_val)) + 0.1
+    spec = SolverSpec(method=Method(method_choice), boundary_type=bc_type)
 
     stepper = build_stepper(spec.method, grid, time_spec, phys, bc)
-    
+
     return x, u0, y_min, y_max, stepper, time_spec
 
 
@@ -105,25 +98,27 @@ x, u0, y_min, y_max, stepper, time_spec = setup_simulation()
 placeholder = st.empty()
 run = st.button("Run simulation")
 
-fig = create_heat_plot(x, u0, y_min, y_max, 0, simulation_time=0.0, total_simulation_time=total_time)
+fig = create_heat_plot(
+    x, u0, y_min, y_max, 0, simulation_time=0.0, total_simulation_time=total_time
+)
 placeholder.plotly_chart(fig, use_container_width=True)
 
 if run:
     runner = Runner(stepper=stepper, u0=u0)
     total_steps = int(np.floor(time_spec.T / time_spec.dt))
-    
+
     estimated_frames = total_steps // update_frequency + 1
-    
+
     frame_count = 0
-    for snap in runner.run():        
+    for snap in runner.run():
         if snap.step % update_frequency != 0 and snap.step != total_steps:
             frame_count += 1
             continue
-        
+
         update_heat_plot_data(fig, snap.u, snap.step, snap.t, total_simulation_time=total_time)
         placeholder.plotly_chart(fig, use_container_width=True, key=f"heat_plot_{snap.step}")
         frame_count += 1
-    
+
     st.success("Simulation complete! Will auto-reset in 5 seconds...")
     time.sleep(5)
     reset_simulation()
