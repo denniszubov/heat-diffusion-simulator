@@ -8,7 +8,7 @@ from core.types import Array1D
 
 def setup_boundary_conditions(
     boundary_type_choice: str, u0: Array1D
-) -> Tuple[BoundaryHandler, BoundaryType, Tuple[float, float]]:
+) -> tuple[BoundaryHandler, BoundaryType, tuple[float, float]]:
     """
     Set up boundary conditions based on user choice and initial condition.
 
