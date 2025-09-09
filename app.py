@@ -85,40 +85,25 @@ y_min = float(min(u0.min(), left_bc_val, right_bc_val)) - 0.1
 y_max = float(max(u0.max(), left_bc_val, right_bc_val)) + 0.1
 
 placeholder = st.empty()
-progress = st.progress(0)
 run = st.button("Run simulation")
 
-try:
-    stepper = build_stepper(spec.method, grid, time_spec, phys, bc)
-except NotImplementedError as e:
-    st.error(f"{e}")
-    stepper = None
+stepper = build_stepper(spec.method, grid, time_spec, phys, bc)
 
-if stepper is None:
-    st.sidebar.error("Selected method not implemented yet")
-
-fig = create_heat_plot(x, u0, y_min, y_max, 0, simulation_time=0.0)
+fig = create_heat_plot(x, u0, y_min, y_max, 0, simulation_time=0.0, total_simulation_time=total_time)
 placeholder.plotly_chart(fig, use_container_width=True)
 
-if run and stepper is not None:
+if run:
     runner = Runner(stepper=stepper, u0=u0)
     total_steps = int(np.floor(time_spec.T / time_spec.dt))
     
     estimated_frames = total_steps // update_frequency + 1
-    
-    # Show simulation info
-    st.info(f"Simulating {time_spec.T:.0f}s of heat diffusion in {material_choice.lower()} rod")
-    st.info(f"Time step: {dt*1000:.3f} ms | Steps: {total_steps:,}")
-    st.info(f"Will show ~{estimated_frames} frames (every {update_frequency} steps)")
-    
-    frame_count = 0
-    for snap in runner.run():
-        progress.progress(min(1.0, snap.step / max(1, total_steps)))
         
-        # Update visualization at reduced frequency
-        if snap.step % update_frequency == 0 or snap.step == total_steps:
-            update_heat_plot_data(fig, snap.u, snap.step, snap.t)
-            placeholder.plotly_chart(fig, use_container_width=True, key=f"heat_plot_{snap.step}")
+    frame_count = 0
+    for snap in runner.run():        
+        if snap.step % update_frequency != 0 and snap.step != total_steps:
             frame_count += 1
-    
-    st.success(f"Simulation completed! Showed {frame_count} frames.")
+            continue
+        
+        update_heat_plot_data(fig, snap.u, snap.step, snap.t, total_simulation_time=total_time)
+        placeholder.plotly_chart(fig, use_container_width=True, key=f"heat_plot_{snap.step}")
+        frame_count += 1

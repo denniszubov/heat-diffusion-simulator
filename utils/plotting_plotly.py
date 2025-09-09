@@ -9,7 +9,8 @@ def create_heat_plot(
     y_min: float,
     y_max: float,
     step: int,
-    simulation_time: float = None,
+    simulation_time: float,
+    total_simulation_time: float,
 ) -> go.Figure:
     fig = go.Figure()
 
@@ -17,29 +18,21 @@ def create_heat_plot(
         go.Scatter(
             x=x,
             y=y,
-            # mode="lines",
             mode="markers",
             marker=dict(
-                color=y,                 # color by temperature
+                color=y,  # color by temperature
                 colorscale=[[0, "blue"], [1, "red"]],  # blue->red
-                cmin=y.min(),            # lock the range
-                cmax=y.max(),
-                showscale=True,
-                colorbar=dict(title="Temp (°C)"),
+                cmin=y.min(),
+                cmax=y.max(), 
                 size=6,
                 opacity=0.9
             ),
-            # line=dict(color="red", width=3),
             name="Temperature",
             showlegend=False,
         )
     )
 
-    title = (
-        f"Heat Diffusion - Time: {simulation_time:.1f}s (Step {step})"
-        if simulation_time is not None
-        else f"Temperature profile at step {step}"
-    )
+    title = f"Heat Diffusion - Time: {simulation_time:.1f}s / {total_simulation_time}s | Step {step}"
 
     fig.update_layout(
         title={"text": title, "font": {"size": 24}, "x": 0.5},
@@ -65,17 +58,11 @@ def update_heat_plot_data(
     fig: go.Figure,
     y: NDArray[np.float64],
     step: int,
-    simulation_time: float = None,
+    simulation_time: float,
+    total_simulation_time: float,
 ) -> None:
-    """Update only the data and title of existing Plotly figure."""
-
-    # Update temperature data and color gradient
     fig.data[0].y = y
     fig.data[0].marker.color = y
 
-    title = (
-        f"Heat Diffusion - Time: {simulation_time:.1f}s (Step {step})"
-        if simulation_time is not None
-        else f"Temperature profile at step {step}"
-    )
+    title = f"Heat Diffusion - Time: {simulation_time:.1f}s / {total_simulation_time}s | Step {step}"
     fig.update_layout(title=dict(text=title))
