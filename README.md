@@ -2,6 +2,10 @@
 
 A real-time interactive simulator for the 1D heat equation using finite difference methods. Watch heat flow through different materials and explore how boundary conditions affect thermal behavior.
 
+## Live Demo
+
+**Try the interactive simulator:** [https://heat-diffusion.streamlit.app](https://heat-diffusion.streamlit.app)
+
 ## Overview
 
 This application simulates heat diffusion through a 1D rod, demonstrating fundamental principles of thermal physics. Heat naturally flows from hot to cold regions, and this simulator lets you visualize that process in real-time with different materials and conditions.
